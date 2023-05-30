@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
@@ -27,6 +25,13 @@ public class EmployeeServiceImpl implements EmployeeService{
         //sort the list by firstName, then by lastName and then by id
         return employeeRepository.findAll(Sort.by(EmployeeAttributeConstants.EMP_FIRST_NAME,
                 EmployeeAttributeConstants.EMP_LAST_NAME, EmployeeAttributeConstants.EMP_ID));
+    }
+
+    @Override
+    public List<Employee> filterEmployeesByName(String firstName, String lastName) {
+        String likeFirstName = new StringJoiner("", "%", "%").add(firstName.toLowerCase(Locale.ROOT)).toString();
+        String likeLastName = new StringJoiner("", "%", "%").add(lastName.toLowerCase(Locale.ROOT)).toString();
+        return employeeRepository.findEmployeesByName(likeFirstName, likeLastName);
     }
 
     @Override

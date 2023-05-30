@@ -12,4 +12,6 @@ public interface EmployeeService {
     List<Employee> filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate);
 
     List<Employee> findAll();
+
+    List<Employee> filterEmployeesByName(String firstName, String lastName);
 }
