@@ -61,7 +61,8 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .sorted(Comparator.comparing(Timesheet::getDate)).toList()));
 
         //sort employees by firstName then by lastName then by id
-        List<Employee> sortedEmployees = employeesByManagerId.stream()
+        List<Employee> sortedEmployees;
+        sortedEmployees = employeesByManagerId.stream()
                                             .sorted(Comparator.comparing(Employee::getFirstName)
                                                 .thenComparing(Employee::getLastName).thenComparing(Employee::getId))
                                             .toList();
