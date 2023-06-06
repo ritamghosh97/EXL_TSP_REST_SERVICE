@@ -26,8 +26,8 @@ public class Timesheet {
     @Column(name = "approval_status")
     private int approvalStatus;
 
-    @ManyToOne(cascade= {CascadeType.DETACH,
-            CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY ,cascade= {CascadeType.DETACH, CascadeType.REFRESH,
+                                                CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "emp_id")
     @JsonIgnore
     private Employee employee;

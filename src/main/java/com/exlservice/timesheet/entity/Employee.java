@@ -25,9 +25,7 @@ public class Employee {
     @Column(name="manager_id")
     private Integer managerId;
 
-    @OneToMany(mappedBy="employee", cascade= {CascadeType.DETACH,
-            CascadeType.MERGE, CascadeType.REMOVE
-    })
+    @OneToMany(mappedBy="employee", fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     private List<Timesheet> timesheet;
 
     public Employee() {
