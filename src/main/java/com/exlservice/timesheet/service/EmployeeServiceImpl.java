@@ -1,6 +1,7 @@
 package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
+import com.exlservice.timesheet.data.model.EmployeeModel;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.repository.EmployeeRepository;
 import com.exlservice.timesheet.entity.Employee;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +37,31 @@ public class EmployeeServiceImpl implements EmployeeService{
         String likeFirstName = new StringJoiner("", "%", "%").add(firstName.toLowerCase(Locale.ROOT)).toString();
         String likeLastName = new StringJoiner("", "%", "%").add(lastName.toLowerCase(Locale.ROOT)).toString();
         return employeeRepository.findEmployeesByName(likeFirstName, likeLastName);
+    }
+
+    @Override
+    public EmployeeModel findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles) {
+        LocalDate date;
+
+        if(status.equalsIgnoreCase("prev")) {
+            date = LocalDate.now().minusWeeks(1);
+        } else if(status.equalsIgnoreCase("next")){
+            date = LocalDate.now().plusWeeks(1);
+        } else{
+            date = LocalDate.now();
+        }
+
+        LocalDate startDayOfWeek = date.with(DayOfWeek.MONDAY);
+        LocalDate endDayOfWeek = startDayOfWeek.plusDays(6);
+
+        Employee employee = findById(id);
+
+        employee.setTimesheet(getTimesheetByRange(employee, startDayOfWeek, endDayOfWeek));
+
+        return new EmployeeModel(employee.getId(),
+                employee.getFirstName(), employee.getLastName(),
+                employee.getEmail(), employee.getManagerId(),
+                employee.getTimesheet(), getAllDatesBetween(startDayOfWeek, endDayOfWeek), userRoles);
     }
 
     @Override
@@ -84,20 +111,24 @@ public class EmployeeServiceImpl implements EmployeeService{
 
         //filter timesheet of each employee by date range
         employees.forEach(employee ->
-                            employee.setTimesheet(employee
-                                                    .getTimesheet()
-                                                    .stream()
-                                                    .sorted(Comparator.comparing(Timesheet::getDate))
-                                                    .filter(timesheet -> (timesheet.getDate().isEqual(startDateLocal)
-                                                            || timesheet.getDate().isAfter(startDateLocal)))
-                                                    .filter(timesheet -> timesheet.getDate().isEqual(endDateLocal)
-                                                            || timesheet.getDate().isBefore(endDateLocal))
-                                                    .toList()));
+                            employee.setTimesheet(getTimesheetByRange(employee, startDateLocal, endDateLocal)));
 
         //add absent timesheet dummy data to each employee's timesheet
         employees.forEach(employee -> employee.setTimesheet(getAdditionalAbsentDatesTimesheet(employee.getTimesheet(), startDateLocal, endDateLocal)));
 
         return employees;
+    }
+
+    private List<Timesheet> getTimesheetByRange(Employee employee, LocalDate startDateLocal, LocalDate endDateLocal) {
+        return employee
+                .getTimesheet()
+                .stream()
+                .sorted(Comparator.comparing(Timesheet::getDate))
+                .filter(timesheet -> (timesheet.getDate().isEqual(startDateLocal)
+                        || timesheet.getDate().isAfter(startDateLocal)))
+                .filter(timesheet -> timesheet.getDate().isEqual(endDateLocal)
+                        || timesheet.getDate().isBefore(endDateLocal))
+                .toList();
     }
 
     private List<Timesheet> getAdditionalAbsentDatesTimesheet(List<Timesheet> timesheet, LocalDate startDate, LocalDate endDate) {
