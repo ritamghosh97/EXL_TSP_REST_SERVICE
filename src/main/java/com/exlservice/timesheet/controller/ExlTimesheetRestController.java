@@ -2,6 +2,7 @@ package com.exlservice.timesheet.controller;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
 import com.exlservice.timesheet.constant.TimesheetApiCommonConstants;
+import com.exlservice.timesheet.data.model.EmployeeModel;
 import com.exlservice.timesheet.entity.Employee;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.response.handler.ResponseHandler;
@@ -9,6 +10,9 @@ import com.exlservice.timesheet.service.EmployeeService;
 import com.exlservice.timesheet.service.TimesheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/exl-timesheet-api")
@@ -105,6 +111,20 @@ public class ExlTimesheetRestController {
             @PathVariable(EmployeeAttributeConstants.EMP_LAST_NAME) String lastName) {
 
         return employeeService.filterEmployeesByName(firstName, lastName);
+    }
+
+    @GetMapping("/employees/week/{id}/{status}")
+    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("id") int id, @PathVariable("status") String status) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Set<String> userRoles = authentication
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        return employeeService.findEmployeeTimesheetByWeek(id, status, userRoles);
     }
 
 }
