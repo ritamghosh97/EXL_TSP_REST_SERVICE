@@ -116,9 +116,16 @@ public class ExlTimesheetRestController {
         return employeeService.filterEmployeesByName(firstName, lastName);
     }
 
-    @GetMapping(value = {"/employees/week/{id}/{action}/{currentWeekDate}", "/employees/week/{id}/{action}"})
-    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("id") int id,
-                                                      @PathVariable("action") String action,
+    /**
+     * Method to get the currently logged-in employee's current/prev/next week
+     * timesheet based on a date of a week
+     * @param action: prev, next or current week
+     * @param currentWeekDate: any date of any week
+     * @return an employee
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @GetMapping(value = {"/employees/week/{action}/{currentWeekDate}", "/employees/week/{action}"})
+    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("action") String action,
                                                       @PathVariable("currentWeekDate") Optional<String> currentWeekDate) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -131,7 +138,7 @@ public class ExlTimesheetRestController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        return employeeService.findEmployeeTimesheetByWeek(id, action, userRoles, currentWeekDate);
+        return employeeService.findEmployeeTimesheetByWeek(Integer.parseInt(user.getUsername()), action, userRoles, currentWeekDate);
     }
 
 }
