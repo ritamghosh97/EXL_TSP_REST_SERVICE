@@ -13,13 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -113,18 +116,22 @@ public class ExlTimesheetRestController {
         return employeeService.filterEmployeesByName(firstName, lastName);
     }
 
-    @GetMapping("/employees/week/{id}/{status}")
-    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("id") int id, @PathVariable("status") String status) {
+    @GetMapping(value = {"/employees/week/{id}/{action}/{currentWeekDate}", "/employees/week/{id}/{action}"})
+    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("id") int id,
+                                                      @PathVariable("action") String action,
+                                                      @PathVariable("currentWeekDate") Optional<String> currentWeekDate) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Set<String> userRoles = authentication
+        User user = (User) authentication.getPrincipal();
+
+        Set<String> userRoles = user
                 .getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        return employeeService.findEmployeeTimesheetByWeek(id, status, userRoles);
+        return employeeService.findEmployeeTimesheetByWeek(id, action, userRoles, currentWeekDate);
     }
 
 }

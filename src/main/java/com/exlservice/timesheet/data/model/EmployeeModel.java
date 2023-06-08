@@ -12,16 +12,17 @@ public class EmployeeModel {
     private String lastName;
     private String email;
     private Integer managerId;
-    private List<Timesheet> timesheet;
+    private List<TimesheetModel> timesheet;
     private Set<String> roles;
-    private List<LocalDate> weekDates;
-    public EmployeeModel() {
+    private List<String> weekDates;
+
+    public EmployeeModel(){
 
     }
 
     public EmployeeModel(int id, String firstName, String lastName, String email,
-                         Integer managerId, List<Timesheet> timesheet,
-                         List<LocalDate> weekDates, Set<String> roles) {
+                         Integer managerId, List<TimesheetModel> timesheet,
+                         List<String> weekDates, Set<String> roles) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -72,19 +73,19 @@ public class EmployeeModel {
         this.managerId = managerId;
     }
 
-    public List<Timesheet> getTimesheet() {
+    public List<TimesheetModel> getTimesheet() {
         return timesheet;
     }
 
-    public void setTimesheet(List<Timesheet> timesheet) {
+    public void setTimesheet(List<TimesheetModel> timesheet) {
         this.timesheet = timesheet;
     }
 
-    public List<LocalDate> getWeekDates() {
+    public List<String> getWeekDates() {
         return weekDates;
     }
 
-    public void setWeekDates(List<LocalDate> weekDates) {
+    public void setWeekDates(List<String> weekDates) {
         this.weekDates = weekDates;
     }
 
