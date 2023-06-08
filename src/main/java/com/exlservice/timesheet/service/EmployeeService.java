@@ -13,11 +13,12 @@ public interface EmployeeService {
 
     public ManagerModel findEmployeesByManagerId(int id, Set<String> userRoles);
 
-    List<Employee> filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate);
+    ManagerModel filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate, Set<String> userRoles);
 
     List<Employee> findAll();
 
     List<Employee> filterEmployeesByName(String firstName, String lastName);
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     EmployeeModel findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles, Optional<String> date);
 }

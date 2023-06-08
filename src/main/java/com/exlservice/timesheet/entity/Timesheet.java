@@ -24,7 +24,7 @@ public class Timesheet {
     private Integer hours;
 
     @Column(name = "approval_status")
-    private int approvalStatus;
+    private Integer approvalStatus;
 
     @ManyToOne(fetch = FetchType.LAZY ,cascade= {CascadeType.DETACH, CascadeType.REFRESH,
                                                 CascadeType.MERGE, CascadeType.PERSIST})
@@ -67,11 +67,11 @@ public class Timesheet {
         this.hours = hours;
     }
 
-    public int getApprovalStatus() {
+    public Integer getApprovalStatus() {
         return approvalStatus;
     }
 
-    public void setApprovalStatus(int approvalStatus) {
+    public void setApprovalStatus(Integer approvalStatus) {
         this.approvalStatus = approvalStatus;
     }
 

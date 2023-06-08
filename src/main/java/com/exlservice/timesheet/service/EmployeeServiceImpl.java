@@ -2,7 +2,6 @@ package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
 import com.exlservice.timesheet.data.model.EmployeeModel;
-import com.exlservice.timesheet.data.model.EmployeeModelForManager;
 import com.exlservice.timesheet.data.model.ManagerModel;
 import com.exlservice.timesheet.data.model.TimesheetModel;
 import com.exlservice.timesheet.entity.Timesheet;
@@ -23,6 +22,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
 
     @Override
     public List<Employee> findAll() {
@@ -42,9 +43,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeModel findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles, Optional<String> currentWeekDate) {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
-
         LocalDate current;
 
         current = ServiceUtil.getCurrentDateBasedOnWeek(status, currentWeekDate, formatter);
@@ -85,8 +83,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ManagerModel findEmployeesByManagerId(int managerId, Set<String> userRoles) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
-
         List<Employee> employeesByManagerId= employeeRepository.findEmployeesByManagerId(managerId);
 
 
@@ -106,13 +102,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                                                 .toList();
 
 
-        List<EmployeeModelForManager> employees = new LinkedList<>();
+        List<EmployeeModel> employees = new LinkedList<>();
 
 
         sortedEmployees.forEach(employee -> {
             List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
-            employees.add(new EmployeeModelForManager(
-                    employee.getId(), employee.getFirstName(), employee.getLastName(), employee.getEmail(), employee.getManagerId(), timesheetModels));
+            employees.add(new EmployeeModel(
+                    employee.getId(), employee.getFirstName(), employee.getLastName(),
+                    employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
 
@@ -132,10 +129,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate) {
+    public ManagerModel filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate, Set<String> userRoles) {
         List<Employee> employees = employeeRepository.findEmployeesByManagerId(theId);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate startDateLocal = LocalDate.parse(startDate, formatter);
         LocalDate endDateLocal = LocalDate.parse(endDate, formatter);
@@ -148,7 +143,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         employees.forEach(employee -> employee
                 .setTimesheet(ServiceUtil.getAdditionalAbsentDatesTimesheet(employee.getTimesheet(), startDateLocal, endDateLocal)));
 
-        return employees;
+        List<String> formattedDates = ServiceUtil.formatDates(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
+
+        List<EmployeeModel> modifiedEmployees = new LinkedList<>();
+
+        employees.forEach(employee -> {
+            List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            modifiedEmployees.add(new EmployeeModel(
+                    employee.getId(), employee.getFirstName(), employee.getLastName(),
+                    employee.getEmail(), employee.getManagerId(), timesheetModels));
+        });
+
+        Employee manager = findById(theId);
+
+        ManagerModel managerModel = new ManagerModel();
+        managerModel.setId(manager.getId());
+        managerModel.setFirstName(manager.getFirstName());
+        managerModel.setLastName(manager.getLastName());
+        managerModel.setEmail(manager.getEmail());
+        managerModel.setManagerId(manager.getManagerId());
+        managerModel.setRoles(userRoles);
+        managerModel.setWeekDates(formattedDates);
+        managerModel.setEmployees(modifiedEmployees);
+
+        return managerModel;
     }
 
 }

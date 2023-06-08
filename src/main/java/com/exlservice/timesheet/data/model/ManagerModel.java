@@ -1,26 +1,36 @@
 package com.exlservice.timesheet.data.model;
 
-import com.exlservice.timesheet.entity.Employee;
+import com.exlservice.timesheet.view.ignore.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
 import java.util.Set;
 
 public class ManagerModel {
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private Integer id;
 
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String firstName;
 
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String lastName;
 
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String email;
 
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private int managerId;
 
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private Set<String> roles;
 
+    @JsonView(View.IncludeForFiltration.class)
     private List<String> weekDates;
 
-    private List<EmployeeModelForManager> employees;
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
+    private List<EmployeeModel> employees;
 
     public ManagerModel(){
 
@@ -28,7 +38,7 @@ public class ManagerModel {
 
     public ManagerModel(Integer id, String firstName, String lastName,
                         String email, int managerId, Set<String> roles,
-                        List<String> weekDates, List<EmployeeModelForManager> employees) {
+                        List<String> weekDates, List<EmployeeModel> employees) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -95,11 +105,11 @@ public class ManagerModel {
         this.weekDates = weekDates;
     }
 
-    public List<EmployeeModelForManager> getEmployees() {
+    public List<EmployeeModel> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<EmployeeModelForManager> employees) {
+    public void setEmployees(List<EmployeeModel> employees) {
         this.employees = employees;
     }
 

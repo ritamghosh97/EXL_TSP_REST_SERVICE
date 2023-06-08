@@ -75,7 +75,7 @@ public class ServiceUtil {
                     Timesheet timesheetDummy = new Timesheet();
                     timesheetDummy.setDate(localDate);
                     timesheetDummy.setHours(null);
-                    timesheetDummy.setApprovalStatus(0);
+                    timesheetDummy.setApprovalStatus(null);
                     modifiedTimesheet.add(timesheetDummy);
         });
         modifiedTimesheet.addAll(timesheet);

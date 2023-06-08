@@ -1,23 +1,44 @@
 package com.exlservice.timesheet.data.model;
 
-import com.exlservice.timesheet.entity.Timesheet;
+import com.exlservice.timesheet.view.ignore.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 public class EmployeeModel {
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private int id;
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String firstName;
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String lastName;
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String email;
+
     private Integer managerId;
+
+    @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private List<TimesheetModel> timesheet;
+
     private Set<String> roles;
     private List<String> weekDates;
 
     public EmployeeModel(){
 
+    }
+
+    public EmployeeModel(int id, String firstName, String lastName, String email, Integer managerId, List<TimesheetModel> timesheet) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.managerId = managerId;
+        this.timesheet = timesheet;
     }
 
     public EmployeeModel(int id, String firstName, String lastName, String email,

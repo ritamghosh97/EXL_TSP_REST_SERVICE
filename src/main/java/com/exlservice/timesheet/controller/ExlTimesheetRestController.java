@@ -9,6 +9,8 @@ import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.response.handler.ResponseHandler;
 import com.exlservice.timesheet.service.EmployeeService;
 import com.exlservice.timesheet.service.TimesheetService;
+import com.exlservice.timesheet.view.ignore.View;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -51,6 +53,7 @@ public class ExlTimesheetRestController {
      * @param employeeId: id of a manager
      * @return list of employees under the manager having id: employeeId
      */
+    @JsonView(View.Include.class)
     @GetMapping("/employees/manager/{managerId}")
     public ManagerModel findEmployeesByManagerId(
                         @PathVariable(EmployeeAttributeConstants.EMP_MANAGER_ID) int employeeId){
@@ -103,13 +106,24 @@ public class ExlTimesheetRestController {
      * @param endDate: the date up to which timesheet data will be shown
      * @return list of employees with filtered timesheet by date under the manager having id: managerId
      */
+    @JsonView(View.IncludeForFiltration.class)
     @GetMapping("/employees/manager/{managerId}/{startDate}/{endDate}")
-    public List<Employee> findEmployeesByManagerIdWithinDateRange(
+    public ManagerModel findEmployeesByManagerIdWithinDateRange(
                           @PathVariable(EmployeeAttributeConstants.EMP_MANAGER_ID) int managerId,
                           @PathVariable(TimesheetApiCommonConstants.START_DATE) String startDate,
                           @PathVariable(TimesheetApiCommonConstants.END_DATE) String endDate) {
 
-        return employeeService.filterEmployeesTimesheetByDateRangeUnderManager(managerId, startDate, endDate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Set<String> userRoles = user
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        return employeeService.filterEmployeesTimesheetByDateRangeUnderManager(managerId, startDate, endDate, userRoles);
     }
 
 
