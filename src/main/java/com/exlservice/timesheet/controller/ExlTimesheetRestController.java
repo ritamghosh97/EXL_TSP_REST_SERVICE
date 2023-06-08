@@ -3,6 +3,7 @@ package com.exlservice.timesheet.controller;
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
 import com.exlservice.timesheet.constant.TimesheetApiCommonConstants;
 import com.exlservice.timesheet.data.model.EmployeeModel;
+import com.exlservice.timesheet.data.model.ManagerModel;
 import com.exlservice.timesheet.entity.Employee;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.response.handler.ResponseHandler;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,9 +52,20 @@ public class ExlTimesheetRestController {
      * @return list of employees under the manager having id: employeeId
      */
     @GetMapping("/employees/manager/{managerId}")
-    public List<Employee> findEmployeesByManagerId(
+    public ManagerModel findEmployeesByManagerId(
                         @PathVariable(EmployeeAttributeConstants.EMP_MANAGER_ID) int employeeId){
-        return employeeService.findEmployeesByManagerId(employeeId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Set<String> userRoles = user
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        return employeeService.findEmployeesByManagerId(employeeId, userRoles);
     }
 
 

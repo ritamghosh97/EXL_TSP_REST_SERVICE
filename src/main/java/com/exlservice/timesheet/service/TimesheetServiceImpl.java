@@ -47,11 +47,9 @@ public class TimesheetServiceImpl implements TimesheetService{
 
         List<Timesheet> timesheet = timesheetRepository.findTimesheetBetweenDates(id, startDateLocal, endDateLocal);
 
-        List<Timesheet> timesheetSortedByDate = timesheet
+        return timesheet
                 .stream()
                 .sorted(Comparator.comparing(Timesheet::getDate))
                 .collect(Collectors.toList());
-
-        return timesheetSortedByDate;
     }
 }

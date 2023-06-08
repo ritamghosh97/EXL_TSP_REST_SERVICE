@@ -2,6 +2,8 @@ package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
 import com.exlservice.timesheet.data.model.EmployeeModel;
+import com.exlservice.timesheet.data.model.EmployeeModelForManager;
+import com.exlservice.timesheet.data.model.ManagerModel;
 import com.exlservice.timesheet.data.model.TimesheetModel;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.repository.EmployeeRepository;
@@ -82,7 +84,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> findEmployeesByManagerId(int managerId) {
+    public ManagerModel findEmployeesByManagerId(int managerId, Set<String> userRoles) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
         List<Employee> employeesByManagerId= employeeRepository.findEmployeesByManagerId(managerId);
 
 
@@ -90,14 +94,41 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeesByManagerId.forEach(employee -> employee.setTimesheet(employee.getTimesheet().stream()
                 .sorted(Comparator.comparing(Timesheet::getDate)).toList()));
 
+
+
         //sort employees by firstName then by lastName then by id
-        return employeesByManagerId
-                                .stream()
-                                .sorted(Comparator
-                                        .comparing(Employee::getFirstName)
-                                        .thenComparing(Employee::getLastName)
-                                        .thenComparing(Employee::getId))
-                                .toList();
+        List<Employee> sortedEmployees =  employeesByManagerId
+                                                .stream()
+                                                .sorted(Comparator
+                                                        .comparing(Employee::getFirstName)
+                                                        .thenComparing(Employee::getLastName)
+                                                        .thenComparing(Employee::getId))
+                                                .toList();
+
+
+        List<EmployeeModelForManager> employees = new LinkedList<>();
+
+
+        sortedEmployees.forEach(employee -> {
+            List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            employees.add(new EmployeeModelForManager(
+                    employee.getId(), employee.getFirstName(), employee.getLastName(), employee.getEmail(), employee.getManagerId(), timesheetModels));
+        });
+
+
+        Employee manager = findById(managerId);
+
+        ManagerModel managerModel = new ManagerModel();
+        managerModel.setId(manager.getId());
+        managerModel.setFirstName(manager.getFirstName());
+        managerModel.setLastName(manager.getLastName());
+        managerModel.setEmail(manager.getEmail());
+        managerModel.setManagerId(manager.getManagerId());
+        managerModel.setRoles(userRoles);
+        managerModel.setWeekDates(new LinkedList<>());
+        managerModel.setEmployees(employees);
+
+        return managerModel;
     }
 
     @Override

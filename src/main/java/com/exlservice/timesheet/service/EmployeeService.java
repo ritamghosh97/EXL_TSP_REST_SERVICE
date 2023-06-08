@@ -1,6 +1,7 @@
 package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.data.model.EmployeeModel;
+import com.exlservice.timesheet.data.model.ManagerModel;
 import com.exlservice.timesheet.entity.Employee;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Set;
 public interface EmployeeService {
     public Employee findById(int id);
 
-    public List<Employee> findEmployeesByManagerId(int parseInt);
+    public ManagerModel findEmployeesByManagerId(int id, Set<String> userRoles);
 
     List<Employee> filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate);
 
