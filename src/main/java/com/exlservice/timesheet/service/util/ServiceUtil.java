@@ -95,7 +95,7 @@ public class ServiceUtil {
     }
 
     public static ManagerJsonResponse populateManagerJsonResponse(Employee manager,
-                                      Set<String> userRoles, List<String> formattedDates,
+                                      Set<String> userRoles,
                                       List<EmployeeJsonResponse> modifiedEmployees,
                                       Map<String, String> dayDateMap) {
 
@@ -106,7 +106,6 @@ public class ServiceUtil {
         managerModel.setEmail(manager.getEmail());
         managerModel.setManagerId(manager.getManagerId());
         managerModel.setRoles(userRoles);
-        managerModel.setWeekDates(formattedDates);
         managerModel.setEmployees(modifiedEmployees);
         managerModel.setWeekDatesToDay(dayDateMap);
         return managerModel;

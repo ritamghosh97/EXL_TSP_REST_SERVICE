@@ -49,7 +49,7 @@ public class ExlTimesheetRestController {
 
 
     /**
-     * Method to get all the employees of particular manager.
+     * Method to get all the employees of a particular manager.
      * @param employeeId: id of a manager
      * @return list of employees under the manager having id: employeeId
      */

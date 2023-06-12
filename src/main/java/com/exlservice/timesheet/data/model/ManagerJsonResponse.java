@@ -28,9 +28,6 @@ public class ManagerJsonResponse {
     private Set<String> roles;
 
     @JsonView(View.IncludeForFiltration.class)
-    private List<String> weekDates;
-
-    @JsonView(View.IncludeForFiltration.class)
     private Map<String, String> weekDatesToDay;
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
@@ -41,15 +38,15 @@ public class ManagerJsonResponse {
     }
 
     public ManagerJsonResponse(Integer id, String firstName, String lastName, String email,
-                               Integer managerId, Set<String> roles, List<String> weekDates,
-                               Map<String, String> weekDatesToDay, List<EmployeeJsonResponse> employees) {
+                               Integer managerId, Set<String> roles,
+                               Map<String, String> weekDatesToDay,
+                               List<EmployeeJsonResponse> employees) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.managerId = managerId;
         this.roles = roles;
-        this.weekDates = weekDates;
         this.weekDatesToDay = weekDatesToDay;
         this.employees = employees;
     }
@@ -102,14 +99,6 @@ public class ManagerJsonResponse {
         this.roles = roles;
     }
 
-    public List<String> getWeekDates() {
-        return weekDates;
-    }
-
-    public void setWeekDates(List<String> weekDates) {
-        this.weekDates = weekDates;
-    }
-
     public List<EmployeeJsonResponse> getEmployees() {
         return employees;
     }
@@ -135,7 +124,6 @@ public class ManagerJsonResponse {
                 ", email='" + email + '\'' +
                 ", managerId=" + managerId +
                 ", roles=" + roles +
-                ", weekDates=" + weekDates +
                 ", weekDatesToDay=" + weekDatesToDay +
                 ", employees=" + employees +
                 '}';

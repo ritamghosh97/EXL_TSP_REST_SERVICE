@@ -4,6 +4,7 @@ import com.exlservice.timesheet.view.ignore.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class EmployeeJsonResponse {
@@ -26,7 +27,7 @@ public class EmployeeJsonResponse {
     private List<TimesheetJsonResponse> timesheet;
 
     private Set<String> roles;
-    private List<String> weekDates;
+    private Map<String, String> weekDatesToDay;
 
     public EmployeeJsonResponse(){
 
@@ -43,14 +44,14 @@ public class EmployeeJsonResponse {
 
     public EmployeeJsonResponse(int id, String firstName, String lastName, String email,
                                 Integer managerId, List<TimesheetJsonResponse> timesheet,
-                                List<String> weekDates, Set<String> roles) {
+                                Map<String, String> weekDatesToDay, Set<String> roles) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.managerId = managerId;
         this.timesheet = timesheet;
-        this.weekDates = weekDates;
+        this.weekDatesToDay = weekDatesToDay;
         this.roles = roles;
     }
 
@@ -102,12 +103,12 @@ public class EmployeeJsonResponse {
         this.timesheet = timesheet;
     }
 
-    public List<String> getWeekDates() {
-        return weekDates;
+    public Map<String, String> getWeekDatesToDay() {
+        return weekDatesToDay;
     }
 
-    public void setWeekDates(List<String> weekDates) {
-        this.weekDates = weekDates;
+    public void setWeekDatesToDay(Map<String, String> weekDatesToDay) {
+        this.weekDatesToDay = weekDatesToDay;
     }
 
     public Set<String> getRoles() {
@@ -127,7 +128,7 @@ public class EmployeeJsonResponse {
                 ", email='" + email + '\'' +
                 ", managerId=" + managerId +
                 ", timesheet=" + timesheet +
-                ", weekDates=" + weekDates +
+                ", weekDatesToDay=" + weekDatesToDay +
                 ", roles=" + roles +
                 '}';
     }
