@@ -4,6 +4,7 @@ import com.exlservice.timesheet.view.ignore.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ManagerJsonResponse {
@@ -29,6 +30,9 @@ public class ManagerJsonResponse {
     @JsonView(View.IncludeForFiltration.class)
     private List<String> weekDates;
 
+    @JsonView(View.IncludeForFiltration.class)
+    private Map<String, String> weekDatesToDay;
+
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private List<EmployeeJsonResponse> employees;
 
@@ -36,9 +40,9 @@ public class ManagerJsonResponse {
 
     }
 
-    public ManagerJsonResponse(Integer id, String firstName, String lastName,
-                               String email, Integer managerId, Set<String> roles,
-                               List<String> weekDates, List<EmployeeJsonResponse> employees) {
+    public ManagerJsonResponse(Integer id, String firstName, String lastName, String email,
+                               Integer managerId, Set<String> roles, List<String> weekDates,
+                               Map<String, String> weekDatesToDay, List<EmployeeJsonResponse> employees) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,6 +50,7 @@ public class ManagerJsonResponse {
         this.managerId = managerId;
         this.roles = roles;
         this.weekDates = weekDates;
+        this.weekDatesToDay = weekDatesToDay;
         this.employees = employees;
     }
 
@@ -113,6 +118,14 @@ public class ManagerJsonResponse {
         this.employees = employees;
     }
 
+    public Map<String, String> getWeekDatesToDay() {
+        return weekDatesToDay;
+    }
+
+    public void setWeekDatesToDay(Map<String, String> weekDatesToDay) {
+        this.weekDatesToDay = weekDatesToDay;
+    }
+
     @Override
     public String toString() {
         return "ManagerJsonResponse{" +
@@ -120,9 +133,10 @@ public class ManagerJsonResponse {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", managerId='" + managerId + '\'' +
+                ", managerId=" + managerId +
                 ", roles=" + roles +
                 ", weekDates=" + weekDates +
+                ", weekDatesToDay=" + weekDatesToDay +
                 ", employees=" + employees +
                 '}';
     }

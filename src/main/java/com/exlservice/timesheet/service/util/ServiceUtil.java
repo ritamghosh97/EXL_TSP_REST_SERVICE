@@ -1,5 +1,6 @@
 package com.exlservice.timesheet.service.util;
 
+import com.exlservice.timesheet.constant.TimesheetApiCommonConstants;
 import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
 import com.exlservice.timesheet.data.model.ManagerJsonResponse;
 import com.exlservice.timesheet.data.model.TimesheetJsonResponse;
@@ -93,7 +94,10 @@ public class ServiceUtil {
                 .collect(Collectors.toList());
     }
 
-    public static ManagerJsonResponse populateManagerJsonResponse(Employee manager, Set<String> userRoles, List<String> formattedDates, List<EmployeeJsonResponse> modifiedEmployees) {
+    public static ManagerJsonResponse populateManagerJsonResponse(Employee manager,
+                                      Set<String> userRoles, List<String> formattedDates,
+                                      List<EmployeeJsonResponse> modifiedEmployees,
+                                      Map<String, String> dayDateMap) {
 
         ManagerJsonResponse managerModel = new ManagerJsonResponse();
         managerModel.setId(manager.getId());
@@ -104,6 +108,16 @@ public class ServiceUtil {
         managerModel.setRoles(userRoles);
         managerModel.setWeekDates(formattedDates);
         managerModel.setEmployees(modifiedEmployees);
+        managerModel.setWeekDatesToDay(dayDateMap);
         return managerModel;
+    }
+
+    public static Map<String, String> mapDayToDate(List<LocalDate> dates) {
+        Map<String, String> dayDateMap = new LinkedHashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
+        dates.forEach(date -> dayDateMap.put(date.format(formatter), TimesheetApiCommonConstants.dayAbbrMap.get(date.getDayOfWeek().toString())));
+
+        return dayDateMap;
     }
 }

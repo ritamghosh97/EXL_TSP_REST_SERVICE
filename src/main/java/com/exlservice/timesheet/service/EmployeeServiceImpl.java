@@ -94,7 +94,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
-        return ServiceUtil.populateManagerJsonResponse(findById(id), userRoles, formattedDates, modifiedEmployees);
+        return ServiceUtil.populateManagerJsonResponse(findById(id), userRoles, formattedDates, modifiedEmployees, new HashMap<>());
     }
 
     @Override
@@ -145,7 +145,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
-        return ServiceUtil.populateManagerJsonResponse(findById(managerId), userRoles, new LinkedList<>(), employees);
+        return ServiceUtil.populateManagerJsonResponse(findById(managerId), userRoles, new LinkedList<>(), employees, new HashMap<>());
     }
 
     @Override
@@ -165,6 +165,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<String> formattedDates = ServiceUtil.formatDates(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
 
+        Map<String, String> dayDateMap = ServiceUtil.mapDayToDate(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
+
         List<EmployeeJsonResponse> modifiedEmployees = new LinkedList<>();
 
         employees.forEach(employee -> {
@@ -174,7 +176,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
-        return ServiceUtil.populateManagerJsonResponse(findById(theId), userRoles, formattedDates, modifiedEmployees);
+        return ServiceUtil.populateManagerJsonResponse(findById(theId), userRoles, formattedDates, modifiedEmployees, dayDateMap);
     }
 
 }
