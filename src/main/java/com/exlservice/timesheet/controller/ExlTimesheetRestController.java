@@ -2,8 +2,8 @@ package com.exlservice.timesheet.controller;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
 import com.exlservice.timesheet.constant.TimesheetApiCommonConstants;
-import com.exlservice.timesheet.data.model.EmployeeModel;
-import com.exlservice.timesheet.data.model.ManagerModel;
+import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
+import com.exlservice.timesheet.data.model.ManagerJsonResponse;
 import com.exlservice.timesheet.entity.Employee;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.response.handler.ResponseHandler;
@@ -55,7 +55,7 @@ public class ExlTimesheetRestController {
      */
     @JsonView(View.Include.class)
     @GetMapping("/employees/manager/{managerId}")
-    public ManagerModel findEmployeesByManagerId(
+    public ManagerJsonResponse findEmployeesByManagerId(
                         @PathVariable(EmployeeAttributeConstants.EMP_MANAGER_ID) int employeeId){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -99,17 +99,15 @@ public class ExlTimesheetRestController {
 
 
     /**
-     * Method to find employees under the manager with id managerId, and also filter
+     * Method to find employees under the currently logged-in manager, and also filter
      * each employee's timesheet data from startDate to endDate
-     * @param managerId: id of a manager
      * @param startDate: the date from which timesheet data will be shown
      * @param endDate: the date up to which timesheet data will be shown
      * @return list of employees with filtered timesheet by date under the manager having id: managerId
      */
     @JsonView(View.IncludeForFiltration.class)
-    @GetMapping("/employees/manager/{managerId}/{startDate}/{endDate}")
-    public ManagerModel findEmployeesByManagerIdWithinDateRange(
-                          @PathVariable(EmployeeAttributeConstants.EMP_MANAGER_ID) int managerId,
+    @GetMapping("/employees/manager/{startDate}/{endDate}")
+    public ManagerJsonResponse findEmployeesByManagerIdWithinDateRange(
                           @PathVariable(TimesheetApiCommonConstants.START_DATE) String startDate,
                           @PathVariable(TimesheetApiCommonConstants.END_DATE) String endDate) {
 
@@ -123,7 +121,7 @@ public class ExlTimesheetRestController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        return employeeService.filterEmployeesTimesheetByDateRangeUnderManager(managerId, startDate, endDate, userRoles);
+        return employeeService.filterEmployeesTimesheetByDateRangeUnderManager(Integer.parseInt(user.getUsername()), startDate, endDate, userRoles);
     }
 
 
@@ -150,8 +148,8 @@ public class ExlTimesheetRestController {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @GetMapping(value = {"/employees/week/{action}/{currentWeekDate}", "/employees/week/{action}"})
-    public EmployeeModel findEmployeeTimesheetByWeeks(@PathVariable("action") String action,
-                                                      @PathVariable("currentWeekDate") Optional<String> currentWeekDate) {
+    public EmployeeJsonResponse findEmployeeTimesheetByWeeks(@PathVariable("action") String action,
+                                                             @PathVariable("currentWeekDate") Optional<String> currentWeekDate) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -164,6 +162,33 @@ public class ExlTimesheetRestController {
                 .collect(Collectors.toSet());
 
         return employeeService.findEmployeeTimesheetByWeek(Integer.parseInt(user.getUsername()), action, userRoles, currentWeekDate);
+    }
+
+    /**
+     * Method to find employees under the currently logged-in manager, and show each
+     * employee's timesheet current/prev/next week timesheet data
+     * @param action: prev, next or current week
+     * @param currentWeekDate: any date of any week
+     * @return list of employees with filtered timesheet by week
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @JsonView(View.IncludeForFiltration.class)
+    @GetMapping(value={"/employees/manager/week/{action}/{currentWeekDate}", "/employees/manager/week/{action}"})
+    public ManagerJsonResponse findEmployeesWeeklyTimesheetByManagerId(
+            @PathVariable("action") String action,
+            @PathVariable("currentWeekDate") Optional<String> currentWeekDate) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Set<String> userRoles = user
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        return employeeService.findEmployeesWeeklyTimesheetByManagerId(Integer.parseInt(user.getUsername()), action, userRoles, currentWeekDate);
     }
 
 }

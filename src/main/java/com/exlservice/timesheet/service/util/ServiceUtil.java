@@ -1,6 +1,8 @@
 package com.exlservice.timesheet.service.util;
 
-import com.exlservice.timesheet.data.model.TimesheetModel;
+import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
+import com.exlservice.timesheet.data.model.ManagerJsonResponse;
+import com.exlservice.timesheet.data.model.TimesheetJsonResponse;
 import com.exlservice.timesheet.entity.Employee;
 import com.exlservice.timesheet.entity.Timesheet;
 import org.springframework.util.StringUtils;
@@ -14,12 +16,12 @@ import java.util.stream.IntStream;
 
 public class ServiceUtil {
 
-    public static List<TimesheetModel> formatTimesheetHours(DateTimeFormatter formatter, Employee employee) {
-        List<TimesheetModel> timesheetModels = new LinkedList<>();
+    public static List<TimesheetJsonResponse> formatTimesheetHours(DateTimeFormatter formatter, Employee employee) {
+        List<TimesheetJsonResponse> timesheetModels = new LinkedList<>();
         employee.getTimesheet()
                         .forEach(timesheet -> {
-                            TimesheetModel timesheetModel
-                                    = new TimesheetModel(formatter.format(timesheet.getDate()),
+                            TimesheetJsonResponse timesheetModel
+                                    = new TimesheetJsonResponse(formatter.format(timesheet.getDate()),
                                     timesheet.getHours(), timesheet.getApprovalStatus());
                             timesheetModels.add(timesheetModel);
                         });
@@ -89,5 +91,19 @@ public class ServiceUtil {
                 .limit(numOfDaysBetween+1) //doing plus to also include last date
                 .mapToObj(startDate::plusDays) //i->startDate.plusDays(i)
                 .collect(Collectors.toList());
+    }
+
+    public static ManagerJsonResponse populateManagerJsonResponse(Employee manager, Set<String> userRoles, List<String> formattedDates, List<EmployeeJsonResponse> modifiedEmployees) {
+
+        ManagerJsonResponse managerModel = new ManagerJsonResponse();
+        managerModel.setId(manager.getId());
+        managerModel.setFirstName(manager.getFirstName());
+        managerModel.setLastName(manager.getLastName());
+        managerModel.setEmail(manager.getEmail());
+        managerModel.setManagerId(manager.getManagerId());
+        managerModel.setRoles(userRoles);
+        managerModel.setWeekDates(formattedDates);
+        managerModel.setEmployees(modifiedEmployees);
+        return managerModel;
     }
 }

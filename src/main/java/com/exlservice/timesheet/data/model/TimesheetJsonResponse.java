@@ -4,7 +4,7 @@ package com.exlservice.timesheet.data.model;
 import com.exlservice.timesheet.view.ignore.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
-public class TimesheetModel {
+public class TimesheetJsonResponse {
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private String date;
@@ -17,11 +17,11 @@ public class TimesheetModel {
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private Integer approvalStatus;
 
-    public TimesheetModel(){
+    public TimesheetJsonResponse(){
 
     }
 
-    public TimesheetModel(String date, Integer hours, Integer approvalStatus) {
+    public TimesheetJsonResponse(String date, Integer hours, Integer approvalStatus) {
         this.date = date;
         this.hours = hours;
         this.approvalStatus = approvalStatus;
@@ -53,7 +53,7 @@ public class TimesheetModel {
 
     @Override
     public String toString() {
-        return "TimesheetModel{" +
+        return "TimesheetJsonResponse{" +
                 "date='" + date + '\'' +
                 ", hours=" + hours +
                 ", approvalStatus=" + approvalStatus +

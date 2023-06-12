@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import java.util.Set;
 
-public class EmployeeModel {
+public class EmployeeJsonResponse {
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private int id;
@@ -23,16 +23,16 @@ public class EmployeeModel {
     private Integer managerId;
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
-    private List<TimesheetModel> timesheet;
+    private List<TimesheetJsonResponse> timesheet;
 
     private Set<String> roles;
     private List<String> weekDates;
 
-    public EmployeeModel(){
+    public EmployeeJsonResponse(){
 
     }
 
-    public EmployeeModel(int id, String firstName, String lastName, String email, Integer managerId, List<TimesheetModel> timesheet) {
+    public EmployeeJsonResponse(int id, String firstName, String lastName, String email, Integer managerId, List<TimesheetJsonResponse> timesheet) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -41,9 +41,9 @@ public class EmployeeModel {
         this.timesheet = timesheet;
     }
 
-    public EmployeeModel(int id, String firstName, String lastName, String email,
-                         Integer managerId, List<TimesheetModel> timesheet,
-                         List<String> weekDates, Set<String> roles) {
+    public EmployeeJsonResponse(int id, String firstName, String lastName, String email,
+                                Integer managerId, List<TimesheetJsonResponse> timesheet,
+                                List<String> weekDates, Set<String> roles) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -94,11 +94,11 @@ public class EmployeeModel {
         this.managerId = managerId;
     }
 
-    public List<TimesheetModel> getTimesheet() {
+    public List<TimesheetJsonResponse> getTimesheet() {
         return timesheet;
     }
 
-    public void setTimesheet(List<TimesheetModel> timesheet) {
+    public void setTimesheet(List<TimesheetJsonResponse> timesheet) {
         this.timesheet = timesheet;
     }
 
@@ -120,7 +120,7 @@ public class EmployeeModel {
 
     @Override
     public String toString() {
-        return "EmployeeModel{" +
+        return "EmployeeJsonResponse{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

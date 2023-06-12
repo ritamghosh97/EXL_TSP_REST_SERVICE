@@ -1,9 +1,9 @@
 package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
-import com.exlservice.timesheet.data.model.EmployeeModel;
-import com.exlservice.timesheet.data.model.ManagerModel;
-import com.exlservice.timesheet.data.model.TimesheetModel;
+import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
+import com.exlservice.timesheet.data.model.ManagerJsonResponse;
+import com.exlservice.timesheet.data.model.TimesheetJsonResponse;
 import com.exlservice.timesheet.entity.Timesheet;
 import com.exlservice.timesheet.repository.EmployeeRepository;
 import com.exlservice.timesheet.entity.Employee;
@@ -42,7 +42,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeModel findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles, Optional<String> currentWeekDate) {
+    public EmployeeJsonResponse findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles, Optional<String> currentWeekDate) {
         LocalDate current;
 
         current = ServiceUtil.getCurrentDateBasedOnWeek(status, currentWeekDate, formatter);
@@ -54,14 +54,47 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee.setTimesheet(ServiceUtil.getTimesheetByRange(employee, startDayOfWeek, endDayOfWeek));
 
-        List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+        List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
 
         List<String> formattedDates = ServiceUtil.formatDates(ServiceUtil.getAllDatesBetween(startDayOfWeek, endDayOfWeek));
 
-        return new EmployeeModel(employee.getId(),
+        return new EmployeeJsonResponse(employee.getId(),
                 employee.getFirstName(), employee.getLastName(),
                 employee.getEmail(), employee.getManagerId(),
                 timesheetModels, formattedDates, userRoles);
+    }
+
+    @Override
+    public ManagerJsonResponse findEmployeesWeeklyTimesheetByManagerId(Integer id, String action, Set<String> userRoles, Optional<String> currentWeekDate) {
+        List<Employee> employees = employeeRepository.findEmployeesByManagerId(id);
+
+        LocalDate current;
+
+        current = ServiceUtil.getCurrentDateBasedOnWeek(action, currentWeekDate, formatter);
+
+        LocalDate startDayOfWeek = current.with(DayOfWeek.MONDAY);
+        LocalDate endDayOfWeek = startDayOfWeek.plusDays(6);
+
+        //filter timesheet of each employee by date range
+        employees.forEach(employee ->
+                employee.setTimesheet(ServiceUtil.getTimesheetByRange(employee, startDayOfWeek, endDayOfWeek)));
+
+        //add absent timesheet dummy data to each employee's timesheet
+        employees.forEach(employee -> employee
+                .setTimesheet(ServiceUtil.getAdditionalAbsentDatesTimesheet(employee.getTimesheet(), startDayOfWeek, endDayOfWeek)));
+
+        List<String> formattedDates = ServiceUtil.formatDates(ServiceUtil.getAllDatesBetween(startDayOfWeek, endDayOfWeek));
+
+        List<EmployeeJsonResponse> modifiedEmployees = new LinkedList<>();
+
+        employees.forEach(employee -> {
+            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            modifiedEmployees.add(new EmployeeJsonResponse(
+                    employee.getId(), employee.getFirstName(), employee.getLastName(),
+                    employee.getEmail(), employee.getManagerId(), timesheetModels));
+        });
+
+        return ServiceUtil.populateManagerJsonResponse(findById(id), userRoles, formattedDates, modifiedEmployees);
     }
 
     @Override
@@ -82,7 +115,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ManagerModel findEmployeesByManagerId(int managerId, Set<String> userRoles) {
+    public ManagerJsonResponse findEmployeesByManagerId(int managerId, Set<String> userRoles) {
         List<Employee> employeesByManagerId= employeeRepository.findEmployeesByManagerId(managerId);
 
 
@@ -102,34 +135,21 @@ public class EmployeeServiceImpl implements EmployeeService {
                                                 .toList();
 
 
-        List<EmployeeModel> employees = new LinkedList<>();
+        List<EmployeeJsonResponse> employees = new LinkedList<>();
 
 
         sortedEmployees.forEach(employee -> {
-            List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
-            employees.add(new EmployeeModel(
+            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            employees.add(new EmployeeJsonResponse(
                     employee.getId(), employee.getFirstName(), employee.getLastName(),
                     employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
-
-        Employee manager = findById(managerId);
-
-        ManagerModel managerModel = new ManagerModel();
-        managerModel.setId(manager.getId());
-        managerModel.setFirstName(manager.getFirstName());
-        managerModel.setLastName(manager.getLastName());
-        managerModel.setEmail(manager.getEmail());
-        managerModel.setManagerId(manager.getManagerId());
-        managerModel.setRoles(userRoles);
-        managerModel.setWeekDates(new LinkedList<>());
-        managerModel.setEmployees(employees);
-
-        return managerModel;
+        return ServiceUtil.populateManagerJsonResponse(findById(managerId), userRoles, new LinkedList<>(), employees);
     }
 
     @Override
-    public ManagerModel filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate, Set<String> userRoles) {
+    public ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate, Set<String> userRoles) {
         List<Employee> employees = employeeRepository.findEmployeesByManagerId(theId);
 
         LocalDate startDateLocal = LocalDate.parse(startDate, formatter);
@@ -145,28 +165,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<String> formattedDates = ServiceUtil.formatDates(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
 
-        List<EmployeeModel> modifiedEmployees = new LinkedList<>();
+        List<EmployeeJsonResponse> modifiedEmployees = new LinkedList<>();
 
         employees.forEach(employee -> {
-            List<TimesheetModel> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
-            modifiedEmployees.add(new EmployeeModel(
+            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            modifiedEmployees.add(new EmployeeJsonResponse(
                     employee.getId(), employee.getFirstName(), employee.getLastName(),
                     employee.getEmail(), employee.getManagerId(), timesheetModels));
         });
 
-        Employee manager = findById(theId);
-
-        ManagerModel managerModel = new ManagerModel();
-        managerModel.setId(manager.getId());
-        managerModel.setFirstName(manager.getFirstName());
-        managerModel.setLastName(manager.getLastName());
-        managerModel.setEmail(manager.getEmail());
-        managerModel.setManagerId(manager.getManagerId());
-        managerModel.setRoles(userRoles);
-        managerModel.setWeekDates(formattedDates);
-        managerModel.setEmployees(modifiedEmployees);
-
-        return managerModel;
+        return ServiceUtil.populateManagerJsonResponse(findById(theId), userRoles, formattedDates, modifiedEmployees);
     }
 
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import java.util.Set;
 
-public class ManagerModel {
+public class ManagerJsonResponse {
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private Integer id;
@@ -21,7 +21,7 @@ public class ManagerModel {
     private String email;
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
-    private int managerId;
+    private Integer managerId;
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
     private Set<String> roles;
@@ -30,15 +30,15 @@ public class ManagerModel {
     private List<String> weekDates;
 
     @JsonView({View.Include.class, View.IncludeForFiltration.class})
-    private List<EmployeeModel> employees;
+    private List<EmployeeJsonResponse> employees;
 
-    public ManagerModel(){
+    public ManagerJsonResponse(){
 
     }
 
-    public ManagerModel(Integer id, String firstName, String lastName,
-                        String email, int managerId, Set<String> roles,
-                        List<String> weekDates, List<EmployeeModel> employees) {
+    public ManagerJsonResponse(Integer id, String firstName, String lastName,
+                               String email, Integer managerId, Set<String> roles,
+                               List<String> weekDates, List<EmployeeJsonResponse> employees) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -81,11 +81,11 @@ public class ManagerModel {
         this.email = email;
     }
 
-    public int getManagerId() {
+    public Integer getManagerId() {
         return managerId;
     }
 
-    public void setManagerId(int managerId) {
+    public void setManagerId(Integer managerId) {
         this.managerId = managerId;
     }
 
@@ -105,17 +105,17 @@ public class ManagerModel {
         this.weekDates = weekDates;
     }
 
-    public List<EmployeeModel> getEmployees() {
+    public List<EmployeeJsonResponse> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<EmployeeModel> employees) {
+    public void setEmployees(List<EmployeeJsonResponse> employees) {
         this.employees = employees;
     }
 
     @Override
     public String toString() {
-        return "ManagerModel{" +
+        return "ManagerJsonResponse{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
