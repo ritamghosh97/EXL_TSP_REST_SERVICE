@@ -33,9 +33,11 @@ public class ExlTimesheetSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(requestConfigurer -> requestConfigurer
-                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employees/week/**").hasRole("EMPLOYEE")
+                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employee/name/**").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employee/**").hasRole("EMPLOYEE")
+                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employees/manager").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employees/manager/**").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employees/manager/**").hasRole("MANAGER"));
+                .requestMatchers(HttpMethod.GET, "/exl-timesheet-api/employees/managers/**").hasRole("ADMIN"));
 
         //use HTTP basic authentication
         http.httpBasic(Customizer.withDefaults());

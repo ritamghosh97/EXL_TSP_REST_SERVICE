@@ -1,6 +1,7 @@
 package com.exlservice.timesheet.service;
 
 import com.exlservice.timesheet.constant.EmployeeAttributeConstants;
+import com.exlservice.timesheet.data.model.AdminJsonResponse;
 import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
 import com.exlservice.timesheet.data.model.ManagerJsonResponse;
 import com.exlservice.timesheet.data.model.TimesheetJsonResponse;
@@ -35,6 +36,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public Employee findById(int id) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+
+        Employee theEmployee;
+
+        if(optionalEmployee.isPresent()) {
+            theEmployee = optionalEmployee.get();
+        }
+        else {
+            //couldn't find employee with the given id
+            throw new RuntimeException("Employee does not exist with the id="+id);
+        }
+
+        return theEmployee;
+    }
+
+    @Override
     public List<Employee> filterEmployeesByName(String firstName, String lastName) {
         String likeFirstName = new StringJoiner("", "%", "%").add(firstName.toLowerCase(Locale.ROOT)).toString();
         String likeLastName = new StringJoiner("", "%", "%").add(lastName.toLowerCase(Locale.ROOT)).toString();
@@ -43,9 +61,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeJsonResponse findEmployeeTimesheetByWeek(int id, String status, Set<String> userRoles, Optional<String> currentWeekDate) {
-        LocalDate current;
-
-        current = ServiceUtil.getCurrentDateBasedOnWeek(status, currentWeekDate, formatter);
+        LocalDate current = ServiceUtil.getCurrentDateBasedOnWeek(status, currentWeekDate, formatter);
 
         LocalDate startDayOfWeek = current.with(DayOfWeek.MONDAY);
         LocalDate endDayOfWeek = startDayOfWeek.plusDays(6);
@@ -70,12 +86,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public ManagerJsonResponse findEmployeesByManagerId(int managerId, Set<String> userRoles) {
+        List<Employee> employeesByManagerId= employeeRepository.findEmployeesByManagerId(managerId);
+
+
+        //sort each employee's timesheet by date
+        employeesByManagerId.forEach(employee -> employee.setTimesheet(employee.getTimesheet().stream()
+                .sorted(Comparator.comparing(Timesheet::getDate)).toList()));
+
+
+
+        //sort employees by firstName then by lastName then by id
+        List<Employee> sortedEmployees =  employeesByManagerId
+                .stream()
+                .sorted(Comparator
+                        .comparing(Employee::getFirstName)
+                        .thenComparing(Employee::getLastName)
+                        .thenComparing(Employee::getId))
+                .toList();
+
+
+        List<EmployeeJsonResponse> employees = new LinkedList<>();
+
+
+        sortedEmployees.forEach(employee -> {
+            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            employees.add(new EmployeeJsonResponse(
+                    employee.getId(), employee.getFirstName(), employee.getLastName(),
+                    employee.getEmail(), employee.getManagerId(), timesheetModels));
+        });
+
+        return ServiceUtil.populateManagerJsonResponse(findById(managerId), userRoles, employees, new HashMap<>());
+    }
+
+    @Override
     public ManagerJsonResponse findEmployeesWeeklyTimesheetByManagerId(Integer id, String action, Set<String> userRoles, Optional<String> currentWeekDate) {
         List<Employee> employees = employeeRepository.findEmployeesByManagerId(id);
 
-        LocalDate current;
-
-        current = ServiceUtil.getCurrentDateBasedOnWeek(action, currentWeekDate, formatter);
+        LocalDate current = ServiceUtil.getCurrentDateBasedOnWeek(action, currentWeekDate, formatter);
 
         LocalDate startDayOfWeek = current.with(DayOfWeek.MONDAY);
         LocalDate endDayOfWeek = startDayOfWeek.plusDays(6);
@@ -93,82 +141,28 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<EmployeeJsonResponse> modifiedEmployees = new LinkedList<>();
 
         employees.forEach(employee -> {
-            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
+            List<TimesheetJsonResponse> timesheetResp = ServiceUtil.formatTimesheetHours(formatter, employee);
             modifiedEmployees.add(new EmployeeJsonResponse(
                     employee.getId(), employee.getFirstName(), employee.getLastName(),
-                    employee.getEmail(), employee.getManagerId(), timesheetModels));
+                    employee.getEmail(), employee.getManagerId(), timesheetResp));
         });
 
         return ServiceUtil.populateManagerJsonResponse(findById(id), userRoles, modifiedEmployees, dayDateMap);
     }
 
     @Override
-    public Employee findById(int id) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-
-        Employee theEmployee;
-
-        if(optionalEmployee.isPresent()) {
-            theEmployee = optionalEmployee.get();
-        }
-        else {
-            //couldn't find employee with the given id
-            throw new RuntimeException("Employee does not exist with the id="+id);
-        }
-
-        return theEmployee;
-    }
-
-    @Override
-    public ManagerJsonResponse findEmployeesByManagerId(int managerId, Set<String> userRoles) {
-        List<Employee> employeesByManagerId= employeeRepository.findEmployeesByManagerId(managerId);
-
-
-        //sort each employee's timesheet by date
-        employeesByManagerId.forEach(employee -> employee.setTimesheet(employee.getTimesheet().stream()
-                .sorted(Comparator.comparing(Timesheet::getDate)).toList()));
-
-
-
-        //sort employees by firstName then by lastName then by id
-        List<Employee> sortedEmployees =  employeesByManagerId
-                                                .stream()
-                                                .sorted(Comparator
-                                                        .comparing(Employee::getFirstName)
-                                                        .thenComparing(Employee::getLastName)
-                                                        .thenComparing(Employee::getId))
-                                                .toList();
-
-
-        List<EmployeeJsonResponse> employees = new LinkedList<>();
-
-
-        sortedEmployees.forEach(employee -> {
-            List<TimesheetJsonResponse> timesheetModels = ServiceUtil.formatTimesheetHours(formatter, employee);
-            employees.add(new EmployeeJsonResponse(
-                    employee.getId(), employee.getFirstName(), employee.getLastName(),
-                    employee.getEmail(), employee.getManagerId(), timesheetModels));
-        });
-
-        return ServiceUtil.populateManagerJsonResponse(findById(managerId), userRoles, employees, new HashMap<>());
-    }
-
-    @Override
-    public ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, String startDate, String endDate, Set<String> userRoles) {
+    public ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, LocalDate startDate, LocalDate endDate, Set<String> userRoles) {
         List<Employee> employees = employeeRepository.findEmployeesByManagerId(theId);
-
-        LocalDate startDateLocal = LocalDate.parse(startDate, formatter);
-        LocalDate endDateLocal = LocalDate.parse(endDate, formatter);
 
         //filter timesheet of each employee by date range
         employees.forEach(employee ->
-                            employee.setTimesheet(ServiceUtil.getTimesheetByRange(employee, startDateLocal, endDateLocal)));
+                employee.setTimesheet(ServiceUtil.getTimesheetByRange(employee, startDate, endDate)));
 
         //add absent timesheet dummy data to each employee's timesheet
         employees.forEach(employee -> employee
-                .setTimesheet(ServiceUtil.getAdditionalAbsentDatesTimesheet(employee.getTimesheet(), startDateLocal, endDateLocal)));
+                .setTimesheet(ServiceUtil.getAdditionalAbsentDatesTimesheet(employee.getTimesheet(), startDate, endDate)));
 
-        Map<String, String> dayDateMap = ServiceUtil.mapDayToDate(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
+        Map<String, String> dayDateMap = ServiceUtil.mapDayToDate(ServiceUtil.getAllDatesBetween(startDate, endDate));
 
         List<EmployeeJsonResponse> modifiedEmployees = new LinkedList<>();
 
@@ -180,6 +174,39 @@ public class EmployeeServiceImpl implements EmployeeService {
         });
 
         return ServiceUtil.populateManagerJsonResponse(findById(theId), userRoles, modifiedEmployees, dayDateMap);
+    }
+
+    @Override
+    public AdminJsonResponse findAllManagersAndTheirEmployeesWeeklyTimesheet(Integer id, String action, Optional<String> currentWeekDate, Set<String> adminUserRoles) {
+        Employee admin = findById(id);
+        List<Employee> managers = employeeRepository.findAllManagers();
+        List<ManagerJsonResponse> managerJsonResponses = new LinkedList<>();
+        managers.forEach(manager -> {
+            Set<String> userRoles = employeeRepository.findUserRoles(manager.getId());
+            ManagerJsonResponse managerJsonResponse = findEmployeesWeeklyTimesheetByManagerId(manager.getId(), action, userRoles, currentWeekDate);
+            managerJsonResponses.add(managerJsonResponse);
+        });
+
+        Map<String, String> dayDateMap = managerJsonResponses.get(0).getWeekDatesToDay();
+
+        return ServiceUtil.populateAdminJsonResponse(id, adminUserRoles, admin, managerJsonResponses, dayDateMap);
+    }
+
+    @Override
+    public AdminJsonResponse findManagersAndTheirEmployeesTimesheetInDateRange(int id, LocalDate startDateLocal, LocalDate endDateLocal, Set<String> adminUserRoles) {
+        Employee admin = findById(id);
+        List<Employee> managers = employeeRepository.findAllManagers();
+        List<ManagerJsonResponse> managerJsonResponses = new LinkedList<>();
+
+        managers.forEach(manager -> {
+            Set<String> userRoles = employeeRepository.findUserRoles(manager.getId());
+            ManagerJsonResponse managerJsonResponse = filterEmployeesTimesheetByDateRangeUnderManager(manager.getId(), startDateLocal, endDateLocal, userRoles);
+            managerJsonResponses.add(managerJsonResponse);
+        });
+
+        Map<String, String> dayDateMap = managerJsonResponses.get(0).getWeekDatesToDay();
+
+        return ServiceUtil.populateAdminJsonResponse(id, adminUserRoles, admin, managerJsonResponses, dayDateMap);
     }
 
 }

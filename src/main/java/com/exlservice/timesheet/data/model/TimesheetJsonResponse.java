@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 public class TimesheetJsonResponse {
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class})
+    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
     private String date;
 
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class})
+    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
     private Integer hours;
 
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class})
+    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
     private Integer approvalStatus;
 
     public TimesheetJsonResponse(){

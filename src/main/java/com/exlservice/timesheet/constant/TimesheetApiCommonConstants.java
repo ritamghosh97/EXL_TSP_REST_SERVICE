@@ -8,7 +8,7 @@ public class TimesheetApiCommonConstants {
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
 
-    public static final Map<String, String> dayAbbrMap = getDayAbbrMap();
+    public static final Map<String, String> DAY_ABBR_MAP = getDayAbbrMap();
 
     private static Map<String, String> getDayAbbrMap() {
         Map<String, String> dayMap = new HashMap<>();

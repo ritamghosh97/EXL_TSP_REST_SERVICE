@@ -7,40 +7,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ManagerJsonResponse {
+public class AdminJsonResponse {
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private Integer id;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private String firstName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private String lastName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private String email;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private Integer managerId;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView(View.AdminResponse.class)
     private Set<String> roles;
 
-    @JsonView(View.IncludeForFiltration.class)
+    @JsonView(View.AdminResponse.class)
     private Map<String, String> weekDatesToDay;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
-    private List<EmployeeJsonResponse> employees;
+    @JsonView(View.AdminResponse.class)
+    private List<ManagerJsonResponse> managers;
 
-    public ManagerJsonResponse(){
-
+    public AdminJsonResponse() {
     }
 
-    public ManagerJsonResponse(Integer id, String firstName, String lastName, String email,
-                               Integer managerId, Set<String> roles,
-                               Map<String, String> weekDatesToDay,
-                               List<EmployeeJsonResponse> employees) {
+    public AdminJsonResponse(Integer id, String firstName, String lastName,
+                             String email, Integer managerId, Set<String> roles,
+                             Map<String, String> weekDatesToDay,
+                             List<ManagerJsonResponse> managers) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -48,7 +47,7 @@ public class ManagerJsonResponse {
         this.managerId = managerId;
         this.roles = roles;
         this.weekDatesToDay = weekDatesToDay;
-        this.employees = employees;
+        this.managers = managers;
     }
 
     public Integer getId() {
@@ -99,14 +98,6 @@ public class ManagerJsonResponse {
         this.roles = roles;
     }
 
-    public List<EmployeeJsonResponse> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(List<EmployeeJsonResponse> employees) {
-        this.employees = employees;
-    }
-
     public Map<String, String> getWeekDatesToDay() {
         return weekDatesToDay;
     }
@@ -115,9 +106,17 @@ public class ManagerJsonResponse {
         this.weekDatesToDay = weekDatesToDay;
     }
 
+    public List<ManagerJsonResponse> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<ManagerJsonResponse> managers) {
+        this.managers = managers;
+    }
+
     @Override
     public String toString() {
-        return "ManagerJsonResponse{" +
+        return "AdminJsonResponse{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
@@ -125,7 +124,7 @@ public class ManagerJsonResponse {
                 ", managerId=" + managerId +
                 ", roles=" + roles +
                 ", weekDatesToDay=" + weekDatesToDay +
-                ", employees=" + employees +
+                ", managers=" + managers +
                 '}';
     }
 }

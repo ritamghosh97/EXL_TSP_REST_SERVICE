@@ -1,6 +1,7 @@
 package com.exlservice.timesheet.service.util;
 
 import com.exlservice.timesheet.constant.TimesheetApiCommonConstants;
+import com.exlservice.timesheet.data.model.AdminJsonResponse;
 import com.exlservice.timesheet.data.model.EmployeeJsonResponse;
 import com.exlservice.timesheet.data.model.ManagerJsonResponse;
 import com.exlservice.timesheet.data.model.TimesheetJsonResponse;
@@ -115,8 +116,21 @@ public class ServiceUtil {
         Map<String, String> dayDateMap = new LinkedHashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
-        dates.forEach(date -> dayDateMap.put(date.format(formatter), TimesheetApiCommonConstants.dayAbbrMap.get(date.getDayOfWeek().toString())));
+        dates.forEach(date -> dayDateMap.put(date.format(formatter), TimesheetApiCommonConstants.DAY_ABBR_MAP.get(date.getDayOfWeek().toString())));
 
         return dayDateMap;
+    }
+
+    public static AdminJsonResponse populateAdminJsonResponse(int id, Set<String> adminUserRoles, Employee admin, List<ManagerJsonResponse> managerJsonResponses, Map<String, String> dayDateMap) {
+        AdminJsonResponse adminJsonResponse = new AdminJsonResponse();
+        adminJsonResponse.setId(id);
+        adminJsonResponse.setFirstName(admin.getFirstName());
+        adminJsonResponse.setLastName(admin.getLastName());
+        adminJsonResponse.setEmail(admin.getEmail());
+        adminJsonResponse.setManagerId(admin.getManagerId());
+        adminJsonResponse.setRoles(adminUserRoles);
+        adminJsonResponse.setWeekDatesToDay(dayDateMap);
+        adminJsonResponse.setManagers(managerJsonResponses);
+        return adminJsonResponse;
     }
 }
