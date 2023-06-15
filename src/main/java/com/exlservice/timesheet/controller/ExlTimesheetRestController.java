@@ -179,6 +179,7 @@ public class ExlTimesheetRestController {
      * each employee's timesheet data from startDate to endDate
      * @param startDate: the date from which timesheet data will be shown
      * @param endDate: the date up to which timesheet data will be shown
+     * @param employeeName: Request parameter to be searched against employee name
      * @return list of employees with filtered timesheet by date under the manager having id: managerId
      */
     @JsonView(View.ManagerResponse.class)
@@ -246,6 +247,8 @@ public class ExlTimesheetRestController {
      * Display timesheet data in a range from startDate to endDate of each employee
      * @param startDate: can be prev/next/curr
      * @param endDate: can be any week date
+     * @param employeeName: Request parameter to be searched against employee name
+     * @param managerName: Request parameter to be searched against manager name
      * @return AdminJsonResponse containing list of managers and their employees
      */
     @JsonView(View.AdminResponse.class)
