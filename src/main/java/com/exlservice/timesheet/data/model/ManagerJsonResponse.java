@@ -9,28 +9,28 @@ import java.util.Set;
 
 public class ManagerJsonResponse {
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private Integer id;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String firstName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String lastName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String email;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private Integer managerId;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private Set<String> roles;
 
-    @JsonView(View.IncludeForFiltration.class)
+    @JsonView(View.ManagerResponse.class)
     private Map<String, String> weekDatesToDay;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private List<EmployeeJsonResponse> employees;
 
     public ManagerJsonResponse(){

@@ -12,6 +12,8 @@ import com.exlservice.timesheet.service.util.ServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -151,8 +153,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, LocalDate startDate, LocalDate endDate, Set<String> userRoles) {
-        List<Employee> employees = employeeRepository.findEmployeesByManagerId(theId);
+    public ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, LocalDate startDate, LocalDate endDate, Set<String> userRoles, String employeeName) {
+        List<Employee> employees;
+        if(StringUtils.hasLength(employeeName)){
+            employees = findEmployeesByManagerIdAndName(theId, employeeName);
+        } else {
+            employees = employeeRepository.findEmployeesByManagerId(theId);
+        }
 
         //filter timesheet of each employee by date range
         employees.forEach(employee ->
@@ -177,6 +184,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<Employee> findEmployeesByManagerIdAndName(int theId, String employeeName) {
+        String likeEmployeeName = new StringJoiner("", "%", "%").add(employeeName.toLowerCase(Locale.ROOT)).toString();
+        return employeeRepository.findEmployeesByManagerIdAndName(theId, likeEmployeeName);
+    }
+
+    @Override
     public AdminJsonResponse findAllManagersAndTheirEmployeesWeeklyTimesheet(Integer id, String action, Optional<String> currentWeekDate, Set<String> adminUserRoles) {
         Employee admin = findById(id);
         List<Employee> managers = employeeRepository.findAllManagers();
@@ -193,18 +206,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public AdminJsonResponse findManagersAndTheirEmployeesTimesheetInDateRange(int id, LocalDate startDateLocal, LocalDate endDateLocal, Set<String> adminUserRoles) {
+    public AdminJsonResponse findManagersAndTheirEmployeesTimesheetInDateRange(
+            int id, LocalDate startDateLocal, LocalDate endDateLocal,
+            Set<String> adminUserRoles, String employeeName, String managerName) {
+
         Employee admin = findById(id);
-        List<Employee> managers = employeeRepository.findAllManagers();
+
+        List<Employee> managers;
+
+        if(StringUtils.hasLength(managerName)){
+            String likeManagerName = new StringJoiner("", "%", "%")
+                                    .add(managerName.toLowerCase(Locale.ROOT)).toString();
+            managers = employeeRepository.findManagersByName(likeManagerName);
+        } else {
+            managers = employeeRepository.findAllManagers();
+        }
+
+        //List<Employee> managers = employeeRepository.findAllManagers();
         List<ManagerJsonResponse> managerJsonResponses = new LinkedList<>();
 
         managers.forEach(manager -> {
             Set<String> userRoles = employeeRepository.findUserRoles(manager.getId());
-            ManagerJsonResponse managerJsonResponse = filterEmployeesTimesheetByDateRangeUnderManager(manager.getId(), startDateLocal, endDateLocal, userRoles);
-            managerJsonResponses.add(managerJsonResponse);
+            ManagerJsonResponse managerJsonResponse = filterEmployeesTimesheetByDateRangeUnderManager(manager.getId(), startDateLocal, endDateLocal, userRoles, employeeName);
+
+            //don't add managers to the list when no matching employee found with name
+            if(!CollectionUtils.isEmpty(managerJsonResponse.getEmployees())) {
+                managerJsonResponses.add(managerJsonResponse);
+            }
         });
 
-        Map<String, String> dayDateMap = managerJsonResponses.get(0).getWeekDatesToDay();
+        /*Map<String, String> dayDateMap;
+
+        if(!CollectionUtils.isEmpty(managerJsonResponses)){
+            dayDateMap = managerJsonResponses.get(0).getWeekDatesToDay();
+        } else{
+            dayDateMap = new HashMap<>();
+        }*/
+
+        Map<String, String> dayDateMap = ServiceUtil.mapDayToDate(ServiceUtil.getAllDatesBetween(startDateLocal, endDateLocal));
 
         return ServiceUtil.populateAdminJsonResponse(id, adminUserRoles, admin, managerJsonResponses, dayDateMap);
     }

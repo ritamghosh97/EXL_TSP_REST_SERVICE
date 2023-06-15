@@ -1,8 +1,8 @@
 package com.exlservice.timesheet.view.ignore;
 
 public interface View {
-    interface Include {}
-    interface IncludeForFiltration {}
+    interface EmployeeResponse {}
+    interface ManagerResponse {}
 
     interface AdminResponse {}
 }

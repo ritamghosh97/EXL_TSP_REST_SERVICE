@@ -15,7 +15,7 @@ public interface EmployeeService {
 
     public ManagerJsonResponse findEmployeesByManagerId(int id, Set<String> userRoles);
 
-    ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, LocalDate startDate, LocalDate endDate, Set<String> userRoles);
+    ManagerJsonResponse filterEmployeesTimesheetByDateRangeUnderManager(int theId, LocalDate startDate, LocalDate endDate, Set<String> userRoles, String employeeName);
 
     List<Employee> findAll();
 
@@ -27,8 +27,10 @@ public interface EmployeeService {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     ManagerJsonResponse findEmployeesWeeklyTimesheetByManagerId(Integer id, String action, Set<String> userRoles, Optional<String> currentWeekDate);
 
+    List<Employee> findEmployeesByManagerIdAndName(int theId, String employeeName);
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     AdminJsonResponse findAllManagersAndTheirEmployeesWeeklyTimesheet(Integer id, String action, Optional<String> currentWeekDate, Set<String> adminUserRoles);
 
-    AdminJsonResponse findManagersAndTheirEmployeesTimesheetInDateRange(int id, LocalDate startDateLocal, LocalDate endDateLocal, Set<String> adminUserRoles);
+    AdminJsonResponse findManagersAndTheirEmployeesTimesheetInDateRange(int id, LocalDate startDateLocal, LocalDate endDateLocal, Set<String> adminUserRoles, String employeeName, String managerName);
 }

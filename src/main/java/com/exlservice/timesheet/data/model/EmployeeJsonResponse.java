@@ -9,21 +9,21 @@ import java.util.Set;
 
 public class EmployeeJsonResponse {
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private int id;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String firstName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String lastName;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private String email;
 
     private Integer managerId;
 
-    @JsonView({View.Include.class, View.IncludeForFiltration.class, View.AdminResponse.class})
+    @JsonView({View.EmployeeResponse.class, View.ManagerResponse.class, View.AdminResponse.class})
     private List<TimesheetJsonResponse> timesheet;
 
     private Set<String> roles;

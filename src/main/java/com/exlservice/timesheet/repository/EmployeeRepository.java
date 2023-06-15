@@ -22,6 +22,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT e1 FROM Employee e1 WHERE e1.id IN (SELECT DISTINCT e2.managerId FROM Employee e2)")
     List<Employee> findAllManagers();
 
+    @Query("SELECT e1 FROM Employee e1 WHERE e1.id IN (SELECT DISTINCT e2.managerId FROM Employee e2) AND LOWER(CONCAT(e1.firstName,' ',e1.lastName)) LIKE :name")
+    List<Employee> findManagersByName(@Param("name") String managerName);
+
     @Query(value = "SELECT r.role FROM roles r WHERE r.emp_id=:employeeId", nativeQuery = true)
     Set<String> findUserRoles(@Param("employeeId") int id);
+
+    @Query("SELECT e FROM Employee e WHERE e.managerId=:managerId AND LOWER(CONCAT(e.firstName,' ',e.lastName)) LIKE :name")
+    List<Employee> findEmployeesByManagerIdAndName(@Param("managerId") int theId, @Param("name") String employeeName);
 }
